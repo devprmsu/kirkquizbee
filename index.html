@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirk Quiz Bee 🏆</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen p-4 flex flex-col items-center">
+
+    <div id="login-section" class="w-full max-w-md bg-slate-800 p-8 rounded-2xl shadow-xl mt-10 border border-slate-700">
+        <h1 class="text-3xl font-black text-center text-yellow-500 mb-6">KIRK QUIZ BEE</h1>
+        <div class="space-y-4">
+            <input id="player-name" type="text" placeholder="Full Name" class="w-full p-3 rounded bg-slate-700 border border-slate-600 focus:border-yellow-500 outline-none">
+            <input id="player-gcash" type="text" placeholder="GCash Number (Optional)" class="w-full p-3 rounded bg-slate-700 border border-slate-600 focus:border-yellow-500 outline-none">
+            <button onclick="joinGame()" class="w-full bg-yellow-600 hover:bg-yellow-500 p-4 rounded-xl font-bold text-lg transition-all transform active:scale-95">JOIN GAME</button>
+        </div>
+        <p class="text-center text-slate-400 text-xs mt-4">Prizes: ₱100 | ₱50 | ₱20</p>
+    </div>
+
+    <div id="game-section" class="hidden w-full max-w-2xl bg-slate-800 p-6 rounded-2xl border border-slate-700">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <p id="display-name" class="font-bold text-yellow-500"></p>
+                <p id="display-score" class="text-sm text-slate-400">Score: 0</p>
+            </div>
+            <div id="timer-display" class="text-3xl font-mono bg-red-600 px-4 py-2 rounded-lg animate-pulse">30s</div>
+        </div>
+
+        <div id="question-container" class="text-center min-h-[200px]">
+            <h2 id="question-text" class="text-2xl font-bold mb-8">Waiting for the host...</h2>
+            <div id="options-grid" class="grid grid-cols-1 gap-3"></div>
+            <div id="id-input-area" class="hidden space-y-3">
+                <input id="id-answer" type="text" placeholder="Type answer here..." class="w-full p-4 rounded bg-slate-700 border border-slate-600 text-center text-xl">
+                <button onclick="submitIdAnswer()" class="w-full bg-green-600 p-4 rounded-xl font-bold">SUBMIT ANSWER</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-panel" class="hidden w-full max-w-2xl mt-10 bg-black/40 p-6 rounded-2xl border-2 border-dashed border-yellow-600">
+        <h2 class="text-xl font-bold text-yellow-500 mb-4 text-center underline">HOST CONTROLS</h2>
+        <div class="space-y-4">
+            <textarea id="admin-q" placeholder="Enter Question" class="w-full p-3 bg-slate-900 border border-slate-700 rounded"></textarea>
+            <div class="grid grid-cols-2 gap-2">
+                <input id="admin-o1" placeholder="Option A" class="p-2 bg-slate-900 border border-slate-700 rounded text-sm">
+                <input id="admin-o2" placeholder="Option B" class="p-2 bg-slate-900 border border-slate-700 rounded text-sm">
+                <input id="admin-o3" placeholder="Option C" class="p-2 bg-slate-900 border border-slate-700 rounded text-sm">
+                <input id="admin-o4" placeholder="Option D" class="p-2 bg-slate-900 border border-slate-700 rounded text-sm">
+            </div>
+            <input id="admin-ans" placeholder="Correct Answer" class="w-full p-3 bg-green-900/20 border border-green-500 rounded">
+            <button onclick="publishQuestion()" class="w-full bg-blue-600 p-3 rounded font-bold">PUSH LIVE QUESTION</button>
+        </div>
+
+        <div class="mt-8">
+            <h3 class="font-bold text-center mb-2">Live Rankings</h3>
+            <div id="leaderboard" class="text-sm bg-slate-900 p-4 rounded border border-slate-700"></div>
+        </div>
+    </div>
+
+    <script>
+        // Use your provided config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-aP3QyWeQfeYvI7GNO58mz9BK2BCndtw",
+            authDomain: "kirkquizbee.firebaseapp.com",
+            projectId: "kirkquizbee",
+            storageBucket: "kirkquizbee.firebasestorage.app",
+            messagingSenderId: "993772090411",
+            appId: "1:993772090411:web:245d6f0401570fe54c666e"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        let myName = "";
+        let currentCorrectAns = "";
+
+        if(window.location.search.includes('admin=true')) {
+            document.getElementById('admin-panel').classList.remove('hidden');
+            loadLeaderboard();
+        }
+
+        function joinGame() {
+            const name = document.getElementById('player-name').value;
+            const gcash = document.getElementById('player-gcash').value;
+            if(!name) return alert("Enter your name!");
+            myName = name;
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('game-section').classList.remove('hidden');
+            document.getElementById('display-name').innerText = "Player: " + name;
+            db.ref('players/' + name).set({ score: 0, gcash: gcash });
+        }
+
+        // Real-time listener for questions
+        db.ref('gameState').on('value', (snap) => {
+            const data = snap.val();
+            if(!data) return;
+            document.getElementById('timer-display').innerText = data.timer + "s";
+            if(data.status === "active") renderQuestion(data.current);
+        });
+
+        function renderQuestion(q) {
+            document.getElementById('question-text').innerText = q.text;
+            currentCorrectAns = q.answer;
+            const grid = document.getElementById('options-grid');
+            const idArea = document.getElementById('id-input-area');
+            
+            if(q.options) {
+                idArea.classList.add('hidden');
+                grid.innerHTML = "";
+                q.options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = "bg-slate-700 p-4 rounded-xl hover:bg-yellow-600 transition";
+                    btn.innerText = opt;
+                    btn.onclick = () => checkAnswer(opt);
+                    grid.appendChild(btn);
+                });
+            } else {
+                grid.innerHTML = "";
+                idArea.classList.remove('hidden');
+            }
+        }
+
+        function checkAnswer(ans) {
+            if(ans.toLowerCase().trim() === currentCorrectAns.toLowerCase().trim()) {
+                db.ref('players/' + myName + '/score').transaction(s => (s || 0) + 10);
+                alert("CORRECT! +10 Points");
+            } else {
+                alert("WRONG! Answer was: " + currentCorrectAns);
+            }
+            // Clear current screen
+            document.getElementById('question-text').innerText = "Answer Submitted. Waiting...";
+            document.getElementById('options-grid').innerHTML = "";
+            document.getElementById('id-input-area').classList.add('hidden');
+        }
+
+        function submitIdAnswer() {
+            const val = document.getElementById('id-answer').value;
+            checkAnswer(val);
+            document.getElementById('id-answer').value = "";
+        }
+
+        // ADMIN LOGIC
+        function publishQuestion() {
+            const text = document.getElementById('admin-q').value;
+            const ans = document.getElementById('admin-ans').value;
+            const opts = [
+                document.getElementById('admin-o1').value,
+                document.getElementById('admin-o2').value,
+                document.getElementById('admin-o3').value,
+                document.getElementById('admin-o4').value
+            ].filter(o => o !== "");
+
+            const qData = { text: text, answer: ans };
+            if(opts.length > 0) qData.options = opts;
+
+            db.ref('gameState').update({
+                status: "active",
+                timer: 30,
+                current: qData
+            });
+        }
+
+        function loadLeaderboard() {
+            db.ref('players').on('value', snap => {
+                const list = document.getElementById('leaderboard');
+                list.innerHTML = "";
+                const players = [];
+                snap.forEach(child => {
+                    players.push({ name: child.key, ...child.val() });
+                });
+                players.sort((a,b) => b.score - a.score);
+                players.forEach(p => {
+                    list.innerHTML += `<div class="flex justify-between border-b border-slate-800 py-1">
+                        <span>${p.name} (${p.gcash || 'No GCash'})</span>
+                        <span class="font-bold text-yellow-500">${p.score} pts</span>
+                    </div>`;
+                });
+            });
+        }
+    </script>
+</body>
+</html>
