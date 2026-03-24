@@ -3,184 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Host Console | Kirk Quiz Bee 🎙️</title>
+    <title>ICPEP.SE PRMSU | Admin Console</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <style>
-        body { font-family: 'Quicksand', sans-serif; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+    <style> 
+        body { font-family: 'Quicksand', sans-serif; background-color: #020617; } 
+        .admin-glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); }
     </style>
 </head>
-<body class="bg-slate-950 text-white min-h-screen p-6">
-
+<body class="text-white p-6">
     <div class="max-w-6xl mx-auto">
-        <div class="flex justify-between items-center mb-10 bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-xl">
-            <div class="flex items-center gap-4">
-                <div class="bg-blue-600 p-3 rounded-2xl shadow-lg shadow-blue-500/20">
-                    <i data-lucide="mic-2" class="text-white"></i>
+        <div class="flex justify-between items-center mb-8 bg-slate-900/50 p-6 rounded-3xl border border-slate-800 shadow-2xl">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 p-3 rounded-xl shadow-lg shadow-blue-500/20">
+                    <i data-lucide="shield-check" class="text-white"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold">Host Dashboard</h1>
-                    <p class="text-slate-400 text-sm">Kirk Quiz Bee Live Session</p>
+                    <h1 class="text-2xl font-black tracking-tight uppercase">ICPEP.SE <span class="text-blue-500">PRMSU</span></h1>
+                    <p class="text-[10px] text-slate-500 uppercase tracking-[0.3em] font-bold">Quiz Host Terminal</p>
                 </div>
             </div>
             <div class="flex gap-3">
-                <button onclick="resetScores()" class="px-4 py-2 bg-red-900/30 border border-red-500/50 rounded-xl text-red-500 text-xs font-bold hover:bg-red-500 hover:text-white transition-all">RESET ALL SCORES</button>
+                <button onclick="resetScores()" class="px-5 py-2 bg-red-900/20 text-red-500 rounded-xl border border-red-500/30 text-xs font-bold hover:bg-red-600 hover:text-white transition-all">PURGE ALL DATA</button>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
             <div class="lg:col-span-2 space-y-6">
-                <div class="glass p-8 rounded-3xl shadow-2xl">
-                    <h2 class="text-xl font-bold mb-6 flex items-center gap-2 text-blue-400">
-                        <i data-lucide="plus-circle"></i> Create New Question
+                <div class="admin-glass p-8 rounded-[2.5rem] shadow-2xl border border-blue-500/10">
+                    <h2 class="text-lg font-bold mb-6 flex items-center gap-2 text-blue-400 font-mono uppercase tracking-widest">
+                        <i data-lucide="send" class="w-5 h-5"></i> Broadcaster
                     </h2>
                     
-                    <div class="space-y-4">
-                        <textarea id="admin-q" placeholder="Enter your question here..." class="w-full p-4 bg-slate-800 rounded-2xl border border-slate-700 outline-none focus:border-blue-500 transition-all h-32"></textarea>
-                        
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="relative">
-                                <span class="absolute left-4 top-3 text-slate-500 font-bold">A</span>
-                                <input id="admin-o1" class="w-full pl-10 p-3 bg-slate-800 rounded-xl border border-slate-700 outline-none focus:border-blue-500" placeholder="Option 1">
-                            </div>
-                            <div class="relative">
-                                <span class="absolute left-4 top-3 text-slate-500 font-bold">B</span>
-                                <input id="admin-o2" class="w-full pl-10 p-3 bg-slate-800 rounded-xl border border-slate-700 outline-none focus:border-blue-500" placeholder="Option 2">
-                            </div>
-                            <div class="relative">
-                                <span class="absolute left-4 top-3 text-slate-500 font-bold">C</span>
-                                <input id="admin-o3" class="w-full pl-10 p-3 bg-slate-800 rounded-xl border border-slate-700 outline-none focus:border-blue-500" placeholder="Option 3">
-                            </div>
-                            <div class="relative">
-                                <span class="absolute left-4 top-3 text-slate-500 font-bold">D</span>
-                                <input id="admin-o4" class="w-full pl-10 p-3 bg-slate-800 rounded-xl border border-slate-700 outline-none focus:border-blue-500" placeholder="Option 4">
-                            </div>
+                    <textarea id="admin-q" placeholder="Type the question for the students..." class="w-full p-6 bg-slate-950 rounded-2xl border border-slate-800 mb-6 h-32 focus:border-blue-500 outline-none text-xl font-bold text-white transition-all"></textarea>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="relative">
+                            <span class="absolute left-4 top-4 text-slate-600 font-bold">A</span>
+                            <input id="admin-o1" placeholder="Option A" class="w-full pl-10 p-4 rounded-xl bg-slate-950 border border-slate-800 outline-none focus:border-blue-500 text-white">
                         </div>
-
-                        <div class="bg-green-900/20 p-4 rounded-2xl border border-green-500/30">
-                            <label class="text-xs font-bold text-green-500 mb-2 block uppercase tracking-widest">Correct Answer (Must match exactly)</label>
-                            <input id="admin-ans" class="w-full bg-transparent text-xl font-bold outline-none text-white" placeholder="Type answer here...">
+                        <div class="relative">
+                            <span class="absolute left-4 top-4 text-slate-600 font-bold">B</span>
+                            <input id="admin-o2" placeholder="Option B" class="w-full pl-10 p-4 rounded-xl bg-slate-950 border border-slate-800 outline-none focus:border-blue-500 text-white">
                         </div>
+                        <div class="relative">
+                            <span class="absolute left-4 top-4 text-slate-600 font-bold">C</span>
+                            <input id="admin-o3" placeholder="Option C" class="w-full pl-10 p-4 rounded-xl bg-slate-950 border border-slate-800 outline-none focus:border-blue-500 text-white">
+                        </div>
+                        <div class="relative">
+                            <span class="absolute left-4 top-4 text-slate-600 font-bold">D</span>
+                            <input id="admin-o4" placeholder="Option D" class="w-full pl-10 p-4 rounded-xl bg-slate-950 border border-slate-800 outline-none focus:border-blue-500 text-white">
+                        </div>
+                    </div>
 
-                        <button onclick="publishQuestion()" class="w-full bg-blue-600 hover:bg-blue-500 p-5 rounded-2xl font-bold text-xl shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-3 active:scale-95">
-                            <i data-lucide="play"></i> PUSH LIVE TO PLAYERS
-                        </button>
+                    <div class="bg-blue-900/10 p-6 rounded-2xl border border-blue-500/20 mb-6">
+                        <label class="text-[10px] font-bold text-blue-500 mb-2 block tracking-widest uppercase">Secret Answer Key (Case Insensitive)</label>
+                        <input id="admin-ans" placeholder="Enter correct answer..." class="w-full bg-transparent text-2xl font-black outline-none text-white placeholder:text-slate-800">
+                    </div>
+
+                    <button onclick="publish()" class="w-full bg-blue-600 hover:bg-blue-500 p-6 rounded-2xl font-black text-xl flex items-center justify-center gap-3 shadow-xl shadow-blue-900/40 active:scale-95 transition-all">
+                        DEPLOY TO DASHBOARDS <i data-lucide="zap" class="fill-current"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="admin-glass p-6 rounded-[2.5rem] border-yellow-500/20 h-fit shadow-2xl">
+                <h3 class="font-bold text-lg mb-6 text-yellow-500 flex items-center gap-2">
+                    <i data-lucide="crown" class="w-6 h-6"></i> TOP 3 RANKING
+                </h3>
+                <div id="leaderboard" class="space-y-4">
+                    </div>
+                
+                <div class="mt-8 pt-6 border-t border-white/5">
+                    <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                        <p class="text-[10px] text-slate-500 uppercase font-bold mb-1 tracking-widest">Active Winner</p>
+                        <p id="current-winner-name" class="text-xl font-black text-green-500">None</p>
                     </div>
                 </div>
             </div>
-
-            <div class="space-y-6">
-                <div class="glass p-6 rounded-3xl border border-yellow-500/20">
-                    <h3 class="font-bold text-lg mb-4 flex items-center gap-2 text-yellow-500">
-                        <i data-lucide="crown"></i> Real-time Standings
-                    </h3>
-                    <div id="leaderboard" class="space-y-3">
-                        </div>
-                </div>
-
-                <div class="glass p-6 rounded-3xl border border-slate-700 italic text-slate-400 text-sm">
-                    <i data-lucide="info" class="inline w-4 h-4 mr-1"></i> 
-                    Tip: The first person to answer correctly triggers the winner sound on their device.
-                </div>
-            </div>
-
         </div>
     </div>
 
     <script>
         lucide.createIcons();
-
         const firebaseConfig = {
             apiKey: "AIzaSyA-aP3QyWeQfeYvI7GNO58mz9BK2BCndtw",
             authDomain: "kirkquizbee.firebaseapp.com",
+            databaseURL: "https://kirkquizbee-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "kirkquizbee",
             storageBucket: "kirkquizbee.firebasestorage.app",
             messagingSenderId: "993772090411",
             appId: "1:993772090411:web:245d6f0401570fe54c666e"
         };
-
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let timerInterval = null;
+        let tInt = null;
 
-        function publishQuestion() {
-            const text = document.getElementById('admin-q').value;
-            const ans = document.getElementById('admin-ans').value;
+        function publish() {
+            const q = document.getElementById('admin-q').value;
+            const a = document.getElementById('admin-ans').value;
             const opts = [
-                document.getElementById('admin-o1').value,
-                document.getElementById('admin-o2').value,
-                document.getElementById('admin-o3').value,
+                document.getElementById('admin-o1').value, 
+                document.getElementById('admin-o2').value, 
+                document.getElementById('admin-o3').value, 
                 document.getElementById('admin-o4').value
             ].filter(o => o !== "");
 
-            if(!text || !ans) return alert("Question and Answer are required!");
+            if(!q || !a) return alert("Error: Question and Answer are required!");
 
-            const qData = { text: text, answer: ans };
-            if(opts.length > 0) qData.options = opts;
-
-            db.ref('gameState').update({
-                status: "active",
-                timer: 30,
-                current: qData,
-                winnerClaimed: false
+            // CRITICAL: We use .set() to ensure a total refresh on the player side
+            db.ref('gameState').set({ 
+                status: "active", 
+                timer: 30, 
+                winnerClaimed: false,
+                lastWinner: "None", // Reset winner for the new round
+                current: {
+                    text: q, 
+                    answer: a, 
+                    options: opts.length > 0 ? opts : null
+                }
             });
 
-            startCountdown(30);
-            alert("Question is now LIVE!");
+            startT(30);
+            alert("Question Pushed Successfully!");
         }
 
-        function startCountdown(seconds) {
-            if (timerInterval) clearInterval(timerInterval);
-            let timeLeft = seconds;
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                db.ref('gameState').update({ timer: timeLeft });
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    db.ref('gameState').update({ status: "waiting", timer: 0, winnerClaimed: true });
+        function startT(s) {
+            if(tInt) clearInterval(tInt);
+            let left = s;
+            tInt = setInterval(() => {
+                left--; 
+                db.ref('gameState/timer').set(left);
+                if(left <= 0) { 
+                    clearInterval(tInt); 
+                    db.ref('gameState/status').set("waiting"); 
+                    db.ref('gameState/winnerClaimed').set(true); 
                 }
             }, 1000);
         }
 
-        function resetScores() {
-            if(confirm("DANGER: This will delete all players and scores. Continue?")) {
-                db.ref('players').remove();
-                db.ref('gameState').set({ status: "waiting", timer: 0 });
-            }
+        function resetScores() { 
+            if(confirm("DANGER: This will delete all players and reset all points. Are you sure?")) { 
+                db.ref('players').remove(); 
+                db.ref('gameState').set({status:'waiting', timer:0, lastWinner: "None"}); 
+            } 
         }
 
-        function loadLeaderboard() {
-            db.ref('players').on('value', snap => {
-                const list = document.getElementById('leaderboard');
-                list.innerHTML = "";
-                const players = [];
-                snap.forEach(child => players.push({ name: child.key, ...child.val() }));
-                
-                players.sort((a,b) => b.score - a.score).forEach((p, i) => {
-                    const isTop3 = i < 3;
-                    const bgClass = i === 0 ? "bg-yellow-500/10 border-yellow-500/30" : "bg-slate-800/50 border-slate-700";
-                    
-                    list.innerHTML += `
-                        <div class="flex flex-col p-4 rounded-2xl border ${bgClass} transition-all">
-                            <div class="flex justify-between items-center">
-                                <span class="font-bold text-sm">${i+1}. ${p.name}</span>
-                                <span class="text-yellow-500 font-black">${p.score} PT</span>
-                            </div>
-                            <div class="mt-2 flex justify-between items-center border-t border-white/5 pt-2">
-                                <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">${p.gcash || 'NO GCASH'}</span>
-                                ${p.gcash ? `<button onclick="navigator.clipboard.writeText('${p.gcash}'); alert('Copied!')" class="text-[10px] bg-blue-600/20 text-blue-400 px-2 py-1 rounded-md">COPY NUMBER</button>` : ''}
-                            </div>
-                        </div>`;
-                });
+        // Leaderboard Sync
+        db.ref('players').on('value', snap => {
+            const list = document.getElementById('leaderboard'); 
+            list.innerHTML = "";
+            const ps = []; 
+            snap.forEach(c => ps.push({name:c.key, ...c.val()}));
+            
+            ps.sort((a,b) => b.score - a.score).slice(0,3).forEach((p, i) => {
+                list.innerHTML += `
+                <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800 transition-all hover:border-yellow-500/30">
+                    <div class="flex justify-between items-center font-bold">
+                        <span class="text-slate-300">${i+1}. ${p.name}</span>
+                        <span class="text-yellow-500 text-lg">${p.score} PT</span>
+                    </div>
+                    <div class="text-[10px] text-slate-600 mt-2 flex justify-between items-center uppercase tracking-widest font-bold">
+                        <span>GCash: ${p.gcash || 'N/A'}</span>
+                        <button onclick="navigator.clipboard.writeText('${p.gcash}'); alert('Copied!')" class="text-blue-500 hover:text-white transition-colors">COPY</button>
+                    </div>
+                </div>`;
             });
-        }
+        });
 
-        loadLeaderboard();
+        // Current Round Winner Display
+        db.ref('gameState/lastWinner').on('value', snap => {
+            const winner = snap.val();
+            document.getElementById('current-winner-name').innerText = winner || "None";
+        });
     </script>
 </body>
 </html>
