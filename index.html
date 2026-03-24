@@ -95,6 +95,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         let myName = "", currentCorrectAns = "", hasAnsweredCurrent = false;
+        let lastQuestionText = ""; // New line added to track sync
 
         function joinGame() {
             const name = document.getElementById('player-name').value.trim();
@@ -114,12 +115,18 @@
                 document.getElementById('round-winner-display').classList.remove('hidden');
                 document.getElementById('winner-name').innerText = "Winner: " + data.lastWinner;
             }
-            if(data.status === "active") {
-                hasAnsweredCurrent = false;
-                renderQuestion(data.current);
+            if(data.status === "active" && data.current) {
+                // ADDED: Force re-render only if the question text is actually different
+                if(lastQuestionText !== data.current.text) {
+                    lastQuestionText = data.current.text;
+                    hasAnsweredCurrent = false;
+                    renderQuestion(data.current);
+                }
             } else {
+                lastQuestionText = ""; // Reset when round ends
                 document.getElementById('question-text').innerText = "Round Over. Get Ready!";
                 document.getElementById('options-grid').innerHTML = "";
+                document.getElementById('id-input-area').classList.add('hidden'); // Ensure hidden on reset
             }
         });
 
@@ -153,8 +160,9 @@
                     } else { alert("Correct, but someone was faster! ⌛"); }
                 });
             } else { alert("WRONG! Better luck next time. ❌"); }
-            document.getElementById('question-text').innerText = "Waiting for Round...";
+            document.getElementById('question-text').innerText = "Submitted! Waiting..."; // Changed for better UX
             document.getElementById('options-grid').innerHTML = "";
+            document.getElementById('id-input-area').classList.add('hidden'); // Added to hide input after submission
         }
 
         function submitIdAnswer() { checkAnswer(document.getElementById('id-answer').value); document.getElementById('id-answer').value = ""; }
