@@ -25,7 +25,7 @@
             <span class="font-bold tracking-tighter text-xl">ICPEP.SE <span class="text-yellow-500">PRMSU</span></span>
         </div>
         <div class="flex flex-col items-end">
-             <span id="prize-tag" class="text-xs font-black text-green-400 bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20">PRIZE: PHP 0</span>
+             <span id="prize-tag" class="text-xs font-black text-green-400 bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20 uppercase tracking-widest">Active Prize Pool</span>
         </div>
     </div>
 
@@ -47,7 +47,7 @@
         <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-6">
             <div>
                 <p id="display-name" class="font-bold text-lg leading-none"></p>
-                <p id="display-score" class="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">Score: 0</p>
+                <p id="display-prize-won" class="text-xs font-bold text-green-400 mt-1 uppercase tracking-widest">Won: PHP 0</p>
             </div>
             <div class="flex items-center gap-3 bg-red-500/10 px-6 py-3 rounded-2xl border border-red-500/20">
                 <i data-lucide="clock" class="text-red-500 w-5 h-5 animate-pulse"></i>
@@ -86,6 +86,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         let myName = "", currentCorrectAns = "", hasAnsweredCurrent = false, lastQuestionText = "";
+        let currentRoundPrize = 0; // Track the prize for the current round
 
         function joinGame() {
             const name = document.getElementById('player-name').value.trim();
@@ -94,14 +95,19 @@
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('game-section').classList.remove('hidden');
             document.getElementById('display-name').innerText = name;
-            db.ref('players/' + name).set({ score: 0, gcash: document.getElementById('player-gcash').value });
+            // Initialize with totalPrize field
+            db.ref('players/' + name).set({ totalPrize: 0, gcash: document.getElementById('player-gcash').value });
         }
 
         db.ref('gameState').on('value', snap => {
             const data = snap.val();
             if(!data) return;
             document.getElementById('timer-display').innerText = data.timer;
-            if(data.current && data.current.prize) document.getElementById('prize-tag').innerText = "PRIZE: PHP " + data.current.prize;
+            
+            if(data.current && data.current.prize) {
+                currentRoundPrize = parseInt(data.current.prize);
+                document.getElementById('prize-tag').innerText = "PRIZE: PHP " + currentRoundPrize;
+            }
             
             if(data.lastWinner && data.lastWinner !== "None") {
                 document.getElementById('round-winner-display').classList.remove('hidden');
@@ -150,9 +156,10 @@
             if(isCorrect) {
                 db.ref('gameState/winnerClaimed').transaction(c => { if(c === false) return true; }, (err, committed) => {
                     if(committed) {
-                        db.ref('players/' + myName + '/score').transaction(s => (s || 0) + 10);
+                        // Increment totalPrize by the currentRoundPrize amount
+                        db.ref('players/' + myName + '/totalPrize').transaction(p => (p || 0) + currentRoundPrize);
                         db.ref('gameState').update({ lastWinner: myName });
-                        alert("FASTEST FINGER! YOU WON! 🏆");
+                        alert("FASTEST FINGER! YOU WON PHP " + currentRoundPrize + "! 🏆");
                     } else { alert("Correct, but someone was faster! ⌛"); }
                 });
             } else { alert("WRONG! ❌"); }
@@ -165,7 +172,9 @@
         
         db.ref('players').on('value', snap => {
             const myData = snap.child(myName).val();
-            if(myData) document.getElementById('display-score').innerText = "Score: " + myData.score;
+            if(myData) {
+                document.getElementById('display-prize-won').innerText = "Won: PHP " + (myData.totalPrize || 0);
+            }
         });
     </script>
 </body>

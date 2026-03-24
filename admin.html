@@ -27,6 +27,7 @@
                 </div>
             </div>
             <div class="flex gap-3">
+                <button onclick="clearWinners()" class="px-5 py-2 bg-slate-800 text-slate-300 rounded-xl border border-slate-700 text-xs font-bold hover:bg-slate-700 transition-all">CLEAR WINNER LOG</button>
                 <button onclick="resetScores()" class="px-5 py-2 bg-red-900/20 text-red-500 rounded-xl border border-red-500/30 text-xs font-bold hover:bg-red-600 hover:text-white transition-all">PURGE ALL DATA</button>
             </div>
         </div>
@@ -68,9 +69,17 @@
                         DEPLOY TO DASHBOARDS <i data-lucide="zap" class="fill-current"></i>
                     </button>
                 </div>
+
+                <div class="admin-glass p-6 rounded-[2.5rem] border border-white/5">
+                    <h3 class="font-bold text-sm mb-4 text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <i data-lucide="history" class="w-4 h-4"></i> Question Winner History
+                    </h3>
+                    <div id="winner-history" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2">
+                        </div>
+                </div>
             </div>
 
-            <div class="admin-glass p-6 rounded-[2.5rem] border-yellow-500/20 h-fit shadow-2xl">
+            <div class="admin-glass p-6 rounded-[2.5rem] border-yellow-500/20 h-fit shadow-2xl sticky top-6">
                 <h3 class="font-bold text-lg mb-6 text-yellow-500 flex items-center gap-2">
                     <i data-lucide="crown" class="w-6 h-6"></i> TOP 3 RANKING
                 </h3>
@@ -100,7 +109,6 @@
         const db = firebase.database();
         let tInt = null;
 
-        // Hide options if identification is picked
         document.getElementById('q-type').addEventListener('change', (e) => {
             document.getElementById('options-box').style.display = e.target.value === 'mc' ? 'grid' : 'none';
         });
@@ -119,7 +127,7 @@
 
             if(!q || !a) return alert("Question and Answer required!");
 
-            db.ref('gameState').set({ 
+            db.ref('gameState').update({ 
                 status: "active", 
                 timer: 30, 
                 winnerClaimed: false,
@@ -150,30 +158,69 @@
         }
 
         function resetScores() { 
-            if(confirm("DANGER: This will delete all players!")) { 
+            if(confirm("DANGER: This will delete all players and scores!")) { 
                 db.ref('players').remove(); 
+                db.ref('winnersHistory').remove();
                 db.ref('gameState').set({status:'waiting', timer:0, lastWinner: "None"}); 
             } 
         }
 
+        function clearWinners() {
+            if(confirm("Clear the winner history list?")) {
+                db.ref('winnersHistory').remove();
+            }
+        }
+
+        // Leaderboard logic - Sorted by totalPrize
         db.ref('players').on('value', snap => {
             const list = document.getElementById('leaderboard'); 
             list.innerHTML = "";
             const ps = []; 
             snap.forEach(c => ps.push({name:c.key, ...c.val()}));
-            ps.sort((a,b) => b.score - a.score).slice(0,3).forEach((p, i) => {
+            // Sort by totalPrize (from your dashboard code)
+            ps.sort((a,b) => (b.totalPrize || 0) - (a.totalPrize || 0)).slice(0,3).forEach((p, i) => {
                 list.innerHTML += `
                 <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800">
                     <div class="flex justify-between items-center font-bold">
-                        <span class="text-slate-300">${i+1}. ${p.name}</span>
-                        <span class="text-yellow-500 text-lg">${p.score} PT</span>
+                        <span class="text-slate-300 truncate mr-2">${i+1}. ${p.name}</span>
+                        <span class="text-green-500 text-sm shrink-0">PHP ${p.totalPrize || 0}</span>
                     </div>
                 </div>`;
             });
         });
 
+        // Listen for new winners and add to log
         db.ref('gameState/lastWinner').on('value', snap => {
-            document.getElementById('current-winner-name').innerText = snap.val() || "None";
+            const winnerName = snap.val();
+            document.getElementById('current-winner-name').innerText = winnerName || "None";
+            
+            if(winnerName && winnerName !== "None") {
+                // Save to permanent history for this session
+                db.ref('winnersHistory').push({
+                    name: winnerName,
+                    time: new Date().toLocaleTimeString(),
+                    question: document.getElementById('admin-q').value || "Recent Question"
+                });
+            }
+        });
+
+        // Display Winner History
+        db.ref('winnersHistory').on('value', snap => {
+            const historyBox = document.getElementById('winner-history');
+            historyBox.innerHTML = "";
+            const logs = [];
+            snap.forEach(child => { logs.unshift(child.val()); }); // Newest first
+
+            logs.forEach(log => {
+                historyBox.innerHTML += `
+                <div class="p-3 bg-green-500/5 border border-green-500/10 rounded-xl flex justify-between items-center">
+                    <div class="truncate">
+                        <p class="text-xs font-black text-white">${log.name}</p>
+                        <p class="text-[9px] text-slate-500 truncate">${log.question}</p>
+                    </div>
+                    <span class="text-[9px] font-bold text-slate-600 ml-2">${log.time}</span>
+                </div>`;
+            });
         });
     </script>
 </body>
