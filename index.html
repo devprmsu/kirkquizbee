@@ -13,7 +13,7 @@
         * { font-family: 'Quicksand', sans-serif; }
         .bg-animate { background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #1e293b); background-size: 400% 400%; animation: gradient 15s ease infinite; }
         @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        .glass { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
+        .glass { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .prmsu-gradient { background: linear-gradient(90deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
 </head>
@@ -24,24 +24,20 @@
             <div class="bg-yellow-500 p-2 rounded-lg"><i data-lucide="cpu" class="text-slate-900 w-5 h-5"></i></div>
             <span class="font-bold tracking-tighter text-xl">ICPEP.SE <span class="text-yellow-500">PRMSU</span></span>
         </div>
-        <span class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">Quiz System v2.0</span>
+        <div class="flex flex-col items-end">
+             <span id="prize-tag" class="text-xs font-black text-green-400 bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20">PRIZE: PHP 0</span>
+        </div>
     </div>
 
-    <div id="login-section" class="w-full max-w-md glass p-10 rounded-[2.5rem] mt-4 transition-all animate-in fade-in zoom-in duration-500">
+    <div id="login-section" class="w-full max-w-md glass p-10 rounded-[2.5rem] mt-4 transition-all">
         <div class="flex flex-col items-center mb-8">
             <h1 class="text-4xl font-black prmsu-gradient mb-2 text-center">KIRK QUIZ BEE 2026</h1>
             <p class="text-slate-400 text-sm">Join the Computer Engineering Arena</p>
         </div>
         <div class="space-y-4">
-            <div class="relative">
-                <i data-lucide="user" class="absolute left-4 top-4 text-slate-500 w-5 h-5"></i>
-                <input id="player-name" type="text" placeholder="Full Name" class="w-full pl-12 p-4 rounded-2xl bg-slate-900/50 border border-slate-700 outline-none focus:border-yellow-500 transition-all">
-            </div>
-            <div class="relative">
-                <i data-lucide="wallet" class="absolute left-4 top-4 text-slate-500 w-5 h-5"></i>
-                <input id="player-gcash" type="text" placeholder="GCash Number" class="w-full pl-12 p-4 rounded-2xl bg-slate-900/50 border border-slate-700 outline-none focus:border-yellow-500 transition-all">
-            </div>
-            <button onclick="joinGame()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-900 p-5 rounded-2xl font-black text-lg flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-yellow-500/20">
+            <input id="player-name" type="text" placeholder="Full Name" class="w-full p-4 rounded-2xl bg-slate-900/50 border border-slate-700 outline-none focus:border-yellow-500 transition-all">
+            <input id="player-gcash" type="text" placeholder="GCash Number" class="w-full p-4 rounded-2xl bg-slate-900/50 border border-slate-700 outline-none focus:border-yellow-500 transition-all">
+            <button onclick="joinGame()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-900 p-5 rounded-2xl font-black text-lg flex items-center justify-center gap-2 transition-all">
                 ENTER ARENA <i data-lucide="zap" class="fill-current"></i>
             </button>
         </div>
@@ -49,14 +45,9 @@
 
     <div id="game-section" class="hidden w-full max-w-2xl glass p-8 rounded-[2.5rem] mt-4">
         <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-6">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center border border-white/10">
-                    <i data-lucide="user-check" class="text-yellow-500"></i>
-                </div>
-                <div>
-                    <p id="display-name" class="font-bold text-lg leading-none"></p>
-                    <p id="display-score" class="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">Score: 0</p>
-                </div>
+            <div>
+                <p id="display-name" class="font-bold text-lg leading-none"></p>
+                <p id="display-score" class="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">Score: 0</p>
             </div>
             <div class="flex items-center gap-3 bg-red-500/10 px-6 py-3 rounded-2xl border border-red-500/20">
                 <i data-lucide="clock" class="text-red-500 w-5 h-5 animate-pulse"></i>
@@ -66,15 +57,15 @@
 
         <div id="round-winner-display" class="hidden mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center justify-center gap-3">
             <i data-lucide="award" class="text-green-500"></i>
-            <p id="winner-name" class="font-bold text-white uppercase tracking-tighter"></p>
+            <p id="winner-name" class="font-bold text-white uppercase"></p>
         </div>
 
         <div id="question-container" class="text-center py-6">
-            <h2 id="question-text" class="text-2xl font-bold mb-10 leading-relaxed italic text-slate-200 uppercase tracking-tight">Waiting for Host...</h2>
+            <h2 id="question-text" class="text-2xl font-bold mb-10 leading-relaxed italic text-slate-200 uppercase">Waiting for Host...</h2>
             <div id="options-grid" class="grid grid-cols-1 gap-4"></div>
             <div id="id-input-area" class="hidden space-y-4">
-                <input id="id-answer" type="text" placeholder="Type answer here..." class="w-full p-6 rounded-2xl bg-slate-900/80 border border-slate-700 text-center text-2xl font-bold focus:border-green-500 outline-none">
-                <button onclick="submitIdAnswer()" class="w-full bg-green-600 p-5 rounded-2xl font-black text-xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-green-500/20">
+                <input id="id-answer" type="text" placeholder="Type answer here..." class="w-full p-6 rounded-2xl bg-slate-900/80 border border-slate-700 text-center text-2xl font-bold outline-none">
+                <button onclick="submitIdAnswer()" class="w-full bg-green-600 p-5 rounded-2xl font-black text-xl flex items-center justify-center gap-2">
                     SUBMIT NOW <i data-lucide="arrow-up-circle"></i>
                 </button>
             </div>
@@ -94,8 +85,7 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let myName = "", currentCorrectAns = "", hasAnsweredCurrent = false;
-        let lastQuestionText = ""; // New line added to track sync
+        let myName = "", currentCorrectAns = "", hasAnsweredCurrent = false, lastQuestionText = "";
 
         function joinGame() {
             const name = document.getElementById('player-name').value.trim();
@@ -111,22 +101,26 @@
             const data = snap.val();
             if(!data) return;
             document.getElementById('timer-display').innerText = data.timer;
-            if(data.lastWinner) {
+            if(data.current && data.current.prize) document.getElementById('prize-tag').innerText = "PRIZE: PHP " + data.current.prize;
+            
+            if(data.lastWinner && data.lastWinner !== "None") {
                 document.getElementById('round-winner-display').classList.remove('hidden');
                 document.getElementById('winner-name').innerText = "Winner: " + data.lastWinner;
+            } else {
+                document.getElementById('round-winner-display').classList.add('hidden');
             }
+
             if(data.status === "active" && data.current) {
-                // ADDED: Force re-render only if the question text is actually different
                 if(lastQuestionText !== data.current.text) {
                     lastQuestionText = data.current.text;
                     hasAnsweredCurrent = false;
                     renderQuestion(data.current);
                 }
             } else {
-                lastQuestionText = ""; // Reset when round ends
+                lastQuestionText = "";
                 document.getElementById('question-text').innerText = "Round Over. Get Ready!";
                 document.getElementById('options-grid').innerHTML = "";
-                document.getElementById('id-input-area').classList.add('hidden'); // Ensure hidden on reset
+                document.getElementById('id-input-area').classList.add('hidden');
             }
         });
 
@@ -139,12 +133,14 @@
                 document.getElementById('id-input-area').classList.add('hidden');
                 q.options.forEach(opt => {
                     const btn = document.createElement('button');
-                    btn.className = "bg-slate-800/50 p-6 rounded-2xl font-bold border border-white/10 hover:bg-yellow-500 hover:text-slate-900 hover:scale-[1.02] transition-all text-lg shadow-md";
+                    btn.className = "bg-slate-800/50 p-6 rounded-2xl font-bold border border-white/10 hover:bg-yellow-500 hover:text-slate-900 transition-all text-lg";
                     btn.innerText = opt;
                     btn.onclick = () => checkAnswer(opt);
                     grid.appendChild(btn);
                 });
-            } else { document.getElementById('id-input-area').classList.remove('hidden'); }
+            } else { 
+                document.getElementById('id-input-area').classList.remove('hidden'); 
+            }
         }
 
         function checkAnswer(ans) {
@@ -159,13 +155,14 @@
                         alert("FASTEST FINGER! YOU WON! 🏆");
                     } else { alert("Correct, but someone was faster! ⌛"); }
                 });
-            } else { alert("WRONG! Better luck next time. ❌"); }
-            document.getElementById('question-text').innerText = "Submitted! Waiting..."; // Changed for better UX
+            } else { alert("WRONG! ❌"); }
+            document.getElementById('question-text').innerText = "Waiting for Host...";
             document.getElementById('options-grid').innerHTML = "";
-            document.getElementById('id-input-area').classList.add('hidden'); // Added to hide input after submission
+            document.getElementById('id-input-area').classList.add('hidden');
         }
 
         function submitIdAnswer() { checkAnswer(document.getElementById('id-answer').value); document.getElementById('id-answer').value = ""; }
+        
         db.ref('players').on('value', snap => {
             const myData = snap.child(myName).val();
             if(myData) document.getElementById('display-score').innerText = "Score: " + myData.score;
